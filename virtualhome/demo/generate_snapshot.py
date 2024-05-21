@@ -14,7 +14,7 @@ import add_preconds
 import evolving_graph.check_programs as check_programs
 
 # Add here your script
-script = ['[Walk] <television> (1)', '[SwitchOn] <television> (1)', 
+script = ['[Walk] <television> (1)', '[SwitchOn] <television> (1)',
           '[Walk] <sofa> (1)', '[Find] <controller> (1)',
           '[Grab] <controller> (1)']
 
@@ -33,7 +33,7 @@ def obtain_snapshots(graph_state_list, reference_graph, comm):
     _, ncameras = comm.camera_count()
     cameras_select = list(range(ncameras))
     cameras_select = [cameras_select[x] for x in cameras_ids]
-    
+
     seed = random.randint(1,100)
     messages_expand, images = [], []
     for graph_state in tqdm(graph_state_list):
@@ -50,7 +50,9 @@ def obtain_snapshots(graph_state_list, reference_graph, comm):
     return messages_expand, images
 
 
-comm = UnityCommunication()
+comm = UnityCommunication(
+        file_name=None,
+        port="8080")
 
 print('Inferring preconditions...')
 preconds = add_preconds.get_preconds_script(script).printCondsJSON()
@@ -68,6 +70,7 @@ info = check_programs.check_script(
 
 message, final_state, graph_state_list, graph_dict, id_mapping, info, helper, modif_script = info
 success = (message == 'Script is executable')
+print('Success:', success)
 
 if success:
     print('Generating snapshots')
@@ -75,4 +78,4 @@ if success:
     grid_img = build_grid_images(images)
     cv2.imwrite('snapshot_test.png', grid_img)
     print('Snapshot saved in demo/snapshot_test.png')
-    
+

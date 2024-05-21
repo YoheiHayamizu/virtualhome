@@ -18,7 +18,7 @@ def get_visible_nodes(graph, agent_id):
     state = graph
     id2node = {node['id']: node for node in state['nodes']}
     rooms_ids = [node['id'] for node in graph['nodes'] if node['category'] == 'Rooms']
-        
+
     character = id2node[agent_id]
 
     # find character
@@ -29,10 +29,10 @@ def get_visible_nodes(graph, agent_id):
     grabbed_ids = []
     for edge in state['edges']:
         if edge['relation_type'] == 'INSIDE':
-            
+
             if edge['to_id'] not in is_inside.keys():
                 is_inside[edge['to_id']] = []
-            
+
             is_inside[edge['to_id']].append(edge['from_id'])
             inside_of[edge['from_id']] = edge['to_id']
 
@@ -54,16 +54,16 @@ def get_visible_nodes(graph, agent_id):
         for curr_obj_id in curr_objects:
             new_inside = is_inside[curr_obj_id] if curr_obj_id in is_inside.keys() else []
             objects_inside += new_inside
-        
+
         object_in_room_ids += list(objects_inside)
         curr_objects = list(objects_inside)
-    
+
     # Only objects that are inside the room and not inside something closed
     # TODO: this can be probably speed up if we can ensure that all objects are either closed or open
     object_hidden = lambda ido: inside_of[ido] not in rooms_ids and 'OPEN' not in id2node[inside_of[ido]]['states']
     observable_object_ids = [object_id for object_id in object_in_room_ids if not object_hidden(object_id)] + rooms_ids
     observable_object_ids += grabbed_ids
-    
+
 
     partilly_observable_state = {
         "edges": [edge for edge in state['edges'] if edge['from_id'] in observable_object_ids and edge['to_id'] in observable_object_ids],
@@ -188,7 +188,7 @@ class BinaryVariable(object):
 
         sampled_state = random.choice([self.positive, self.negative])
         self.set_node_state(node, sampled_state)
-    
+
     def set_node_state(self, node, node_state):
 
         assert node_state in [self.positive, self.negative]
@@ -196,7 +196,7 @@ class BinaryVariable(object):
             remove_state = self.negative
         else:
             remove_state = self.positive
-        
+
         while remove_state in node["states"]:
             node["states"].remove(remove_state)
 
@@ -213,15 +213,15 @@ class BinaryVariable(object):
             if verbose:
                 print("Should exist at least on {}, {}".format(self.positive, self.negative), node)
             return False
-        
+
         if self.positive in node["states"] and len([s for s in node["states"] if s == self.positive]) != 1:
             if verbose:
-                print("Too many {} in states".format(self.positive))    
+                print("Too many {} in states".format(self.positive))
             self.set_node_state(node, self.positive)
 
         if self.negative in node["states"] and len([s for s in node["states"] if s == self.negative]) != 1:
             if verbose:
-                print("Too many {} in states".format(self.negative))    
+                print("Too many {} in states".format(self.negative))
             self.set_node_state(node, self.negative)
 
         return True
@@ -254,51 +254,51 @@ class graph_dict_helper(object):
         self.script_object2unity_object = load_name_equivalence()
         self.unity_object2script_object = build_unity2object_script(self.script_object2unity_object)
         self.equivalent_rooms = {
-            "kitchen": "dining_room", 
-            "dining_room": "kitchen", 
-            "entrance_hall": "living_room", 
-            "home_office": "living_room", 
+            "kitchen": "dining_room",
+            "dining_room": "kitchen",
+            "entrance_hall": "living_room",
+            "home_office": "living_room",
             "living_room": "home_office",
             "kids_bedroom": "bedroom"
         }
 
         # precondition to simulator
         self.relation_script_precond_simulator = {
-            "inside": "INSIDE", 
-            "location": "INSIDE", 
-            "atreach": "CLOSE", 
+            "inside": "INSIDE",
+            "location": "INSIDE",
+            "atreach": "CLOSE",
             "in": "ON"
         }
 
         self.states_script_precond_simulator = {
-            "dirty": "DIRTY", 
-            "clean": "CLEAN", 
-            "open": "OPEN", 
-            "closed": "CLOSED", 
-            "plugged": "PLUGGED_IN", 
-            "unplugged": "PLUGGED_OUT", 
-            "is_on": "ON", 
-            "is_off": "OFF", 
-            "sitting": "SITTING", 
+            "dirty": "DIRTY",
+            "clean": "CLEAN",
+            "open": "OPEN",
+            "closed": "CLOSED",
+            "plugged": "PLUGGED_IN",
+            "unplugged": "PLUGGED_OUT",
+            "is_on": "ON",
+            "is_off": "OFF",
+            "sitting": "SITTING",
             "lying": "LYING"
         }
 
         # object_placing.json
         self.relation_placing_simulator = {
-            "in": "INSIDE", 
-            "on": "ON", 
+            "in": "INSIDE",
+            "on": "ON",
             "nearby": "CLOSE"
         }
 
         # object_states.json
         self.states_mapping = {
-            "dirty": "dirty", 
-            "clean": "clean", 
-            "open": "open", 
-            "closed": "closed", 
-            "plugged": "plugged_in", 
-            "unplugged": "plugged_out", 
-            "on": "on", 
+            "dirty": "dirty",
+            "clean": "clean",
+            "open": "open",
+            "closed": "closed",
+            "plugged": "plugged_in",
+            "unplugged": "plugged_out",
+            "on": "on",
             "off": "off"
         }
 
@@ -310,7 +310,7 @@ class graph_dict_helper(object):
         self.random_objects_id = max(random_object_ids) if len(random_object_ids) != 0 else 2000
 
     def check_binary(self, graph_dict, id_checker, verbose):
-        
+
         open_closed = self.open_closed
         on_off = self.on_off
         plugged_in_out = self.plugged_in_out
@@ -321,7 +321,7 @@ class graph_dict_helper(object):
                 if "CAN_OPEN" in node["properties"]:
                     if not open_closed.check(node, verbose):
                         open_closed.set_to_default_state(node)
-                        
+
                 if "HAS_PLUG" in node["properties"]:
                     if not plugged_in_out.check(node, verbose):
                         plugged_in_out.set_to_default_state(node)
@@ -345,7 +345,7 @@ class graph_dict_helper(object):
         for node in graph_dict["nodes"]:
             if node["category"] == "Doors":
                 open_closed.set_node_state(node, "OPEN")
-    
+
     def get_object_binary_variables(self, object_name):
         '''
         For a given object name, obtains the binary variables
@@ -376,10 +376,10 @@ class graph_dict_helper(object):
                     added_variables_default.append(default_var)
 
         return added_variables
-            
-                
+
+
     def set_to_default_state(self, graph_dict, first_room, id_checker):
-        
+
         open_closed = self.open_closed
         on_off = self.on_off
         clean_dirty = self.clean_dirty
@@ -420,14 +420,14 @@ class graph_dict_helper(object):
                 if any([Property.BODY_PART in node["properties"] for v in body_part]):
                     graph_dict["edges"].append({"relation_type": "CLOSE", "from_id": character_id, "to_id": node["id"]})
                     graph_dict["edges"].append({"relation_type": "CLOSE", "from_id": node["id"], "to_id": character_id})
-     
+
     def _add_missing_node(self, graph_dict, id, obj, category):
-                    
+
             graph_dict['nodes'].append({
-                "properties": [i.name for i in self.properties_data[obj]], 
-                "id": id, 
-                "states": [], 
-                "category": category, 
+                "properties": [i.name for i in self.properties_data[obj]],
+                "id": id,
+                "states": [],
+                "category": category,
                 "class_name": obj
             })
 
@@ -442,7 +442,7 @@ class graph_dict_helper(object):
             for node in available_nodes:
                 if node['class_name'] == obj_name:
                     edges = [i for i in filter(lambda v: v['relation_type'] == 'INSIDE' and v['from_id'] == node['id'] and v['to_id'] in available_rooms_in_graph_id, graph_dict["edges"])]
-                        
+
                     if len(edges) > 0:
                         for edge in edges:
                             dest_id = edge['to_id']
@@ -515,13 +515,13 @@ class graph_dict_helper(object):
             except:
                 print(nroom, rooms_tried, available_rooms_in_graph)
             room_mapping[room] = nroom
-        
+
         # use room mapping to change the precond (in-place opetation)
         for precond_i in precond:
             if 'location' in precond_i:
-                room = precond_i['location'][1][0] 
+                room = precond_i['location'][1][0]
                 precond_i['location'][1][0] = room_mapping[room]
-        
+
         # apply room mapping to the script
         for script_line in script:
             for parameter in script_line.parameters:
@@ -605,7 +605,7 @@ class graph_dict_helper(object):
         for script_line in script:
             for parameter in script_line.parameters:
                 parameter.instance = objects_in_script[(parameter.name, parameter.instance)]
-                
+
         return objects_in_script, first_room, room_mapping
 
     def prepare_from_precondition(self, precond, objects_in_script, graph_dict):
@@ -663,7 +663,7 @@ class graph_dict_helper(object):
                             elif k == 'occupied':
                                 self._change_to_occupied(node, graph_dict, objects_to_place)
                             break
-    
+
     def merge_object_name(self, object_name):
         if object_name in self.script_object2unity_object:
             unity_name = self.script_object2unity_object[object_name][0].replace('_', '')
@@ -691,7 +691,7 @@ class graph_dict_helper(object):
             graph_dict["edges"].append({'relation_type': "CLOSE", "from_id": self.random_objects_id, "to_id": tgt_id})
             graph_dict["edges"].append({'relation_type': "CLOSE", "from_id": tgt_id, "to_id": self.random_objects_id})
             self.random_objects_id += 1
-            
+
         while n > 0:
 
             src_name = random.choice(objects_to_place)
@@ -699,7 +699,7 @@ class graph_dict_helper(object):
             # Merge object names
             src_name = self.merge_object_name(src_name)
             for tgt_name in tgt_names:
-                tgt_name['destination'] = self.merge_object_name(tgt_name['destination']) 
+                tgt_name['destination'] = self.merge_object_name(tgt_name['destination'])
             random.shuffle(tgt_names)
             for tgt_name in tgt_names:
                 tgt_nodes = [i for i in filter(lambda v: v["class_name"] == tgt_name['destination'], graph_dict["nodes"])]
@@ -761,7 +761,7 @@ class graph_dict_helper(object):
     def _remove_one_random_nodes(self, graph_dict):
         start_id = 2000
         random_nodes_ids = [node["id"] for node in filter(lambda v: v["id"] >= start_id, graph_dict["nodes"])]
-        
+
         if len(random_nodes_ids) != 0:
             remove_id = np.min(random_nodes_ids)
             graph_dict["nodes"] = [node for node in filter(lambda v: v["id"] != remove_id, graph_dict["nodes"])]
@@ -781,14 +781,14 @@ class graph_dict_helper(object):
                 for edge in graph_dict["edges"]:
                     if edge["relation_type"] == "INSIDE" and edge["from_id"] == node["id"] and edge["to_id"] in rooms_id:
                         room_id = edge["to_id"]
-                
+
                 assert room_id is not None, print("{}({}) doesn't exist in any room".format(node["class_name"], node["id"]))
 
                 number_objects_to_add = max_occupancy - len(occupied_edges)
                 if number_objects_to_add < 0:
                     import ipdb
                     ipdb.set_trace()
-                
+
                 object_placing = self.object_placing
                 random.shuffle(objects_to_place)
 
@@ -796,11 +796,11 @@ class graph_dict_helper(object):
                     tgt_names = object_placing[src_name]
                     src_name = self.merge_object_name(src_name)
                     for tgt_name in tgt_names:
-                        tgt_name['destination'] = self.merge_object_name(tgt_name['destination']) 
+                        tgt_name['destination'] = self.merge_object_name(tgt_name['destination'])
                     if name in [i["destination"] for i in filter(lambda v: v["relation"] == 'ON', tgt_names)]:
                         self._remove_one_random_nodes(graph_dict)
                         self._add_missing_node(graph_dict, self.random_objects_id, src_name, 'placable_objects')
-                        
+
                         graph_dict["edges"].append({"relation_type": "INSIDE", "from_id": self.random_objects_id, "to_id": room_id})
                         graph_dict["edges"].append({"relation_type": "ON", "from_id": self.random_objects_id, "to_id": node["id"]})
                         graph_dict["edges"].append({"relation_type": "CLOSE", "from_id": self.random_objects_id, "to_id": node["id"]})
@@ -825,7 +825,7 @@ class graph_dict_helper(object):
 
             for edge in removed_edges:
                 graph_dict["edges"].remove(edge)
-                                    
+
             floor_id = [_node["id"] for _node in filter(lambda v: v["class_name"] == 'floor', graph_dict["nodes"])]
             for obj_id in occupied_nodes_id:
                 to_id = random.choice(floor_id)
@@ -844,7 +844,7 @@ class graph_dict_helper(object):
             for edge in graph_dict["edges"]:
                 if edge["from_id"] == id and edge["relation_type"] == "INSIDE" and edge["to_id"] in rooms_id:
                     in_room.append(edge["to_id"])
-                    
+
             if len(in_room) > 1:
                 print("src object: {}({})".format(id2name[id], id), "in_rooms:", ', '.join([id2name for i in in_room]))
                 print("exist in more than one room")

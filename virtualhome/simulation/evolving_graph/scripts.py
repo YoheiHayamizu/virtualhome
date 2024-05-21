@@ -14,7 +14,7 @@ class Action(Enum):
     DRINK = ("Drink", 1, [['DRINKABLE', 'RECIPIENT']])
     FIND = ("Find", 1, [[]])
     WALK = ("Walk", 1, [[]])
-    GRAB = ("Grab", 1, [['GRABBABLE']]) # water too
+    GRAB = ("Grab", 1, [['GRABBABLE']])  # water too
     LOOKAT = ("Look at", 1, [[]])
     LOOKAT_SHORT = ("Look at short", 1, [[]])
     LOOKAT_MEDIUM = LOOKAT
@@ -22,14 +22,14 @@ class Action(Enum):
     OPEN = ("Open", 1, [['CAN_OPEN']])
     POINTAT = ("Point at", 1, [[]])
     PUTBACK = ("Put", 2, [['GRABBABLE'], []])
-    #PUT = ("Put", 2)
-    #PUTBACK = PUT
+    # PUT = ("Put", 2)
+    # PUTBACK = PUT
     PUTIN = ("Put in", 2, [['GRABBABLE'], ['CAN_OPEN']])
     PUTOBJBACK = ("Put back", 1, [[]])
     RUN = ("Run", 1, [[]])
     SIT = ("Sit", 1, [['SITTABLE']])
     STANDUP = ("Stand up", 0)
-    SWITCHOFF = ("Switch off", 1, [['HAS_SWITCH']] )
+    SWITCHOFF = ("Switch off", 1, [['HAS_SWITCH']])
     SWITCHON = ("Switch on", 1, [['HAS_SWITCH']])
     TOUCH = ("Touch", 1, [[]])
     TURNTO = ("Turn to", 1, [[]])
@@ -53,11 +53,11 @@ class Action(Enum):
     PLUGIN = ("PlugIn", 1, [['HAS_PLUG']])
     PLUGOUT = ("PlugOut", 1, [['HAS_PLUG']])
     CUT = ("Cut", 1, [['EATABLE', 'CUTABLE']])
-    EAT = ("Eat", 1, [['EATABLE']]) 
-    SLEEP = ("Sleep", 0) 
+    EAT = ("Eat", 1, [['EATABLE']])
+    SLEEP = ("Sleep", 0)
     WAKEUP = ("WakeUp", 0)
     RELEASE = ("Release", 1, [[]])
-    
+
 
 class ScriptObject(object):
 
@@ -132,9 +132,8 @@ def parse_script_line(string, index):
 
     param_match = re.search(patt_params, action_match.string[action_match.end(1):])
     while param_match:
-        params.append(ScriptObject(param_match.group(1), int(param_match.group(2))))
+        params.append(ScriptObject(param_match.group(1), int(float(param_match.group(2)))))
         param_match = re.search(patt_params, param_match.string[param_match.end(2):])
-
     if len(params) != action.value[1]:
         raise ScriptParseException('Wrong number of parameters for "{}". Got {}, expected {}',
                                    action.name, len(params), action.value[1])
@@ -153,7 +152,7 @@ def script_to_list_string(script):
 
 def script_to_string(script):
     list_string = print_script_to_list_string(script)
-    return ', ',join(list_string)
+    return ', ', join(list_string)
 
 
 def read_script(file_name):
@@ -164,7 +163,7 @@ def read_script(file_name):
             if '[' not in line:
                 continue
             line = line.strip()
-            
+
             if len(line) > 0 and not line.startswith('#'):
                 script_lines.append(parse_script_line(line, index))
                 index += 1
@@ -179,7 +178,7 @@ def read_script_from_list_string(list_string):
         if '[' not in line:
             continue
         line = line.strip()
-        
+
         if len(line) > 0 and not line.startswith('#'):
             script_lines.append(parse_script_line(line, index))
             index += 1
@@ -195,7 +194,7 @@ def read_script_from_string(string):
         if '[' not in line:
             continue
         line = line.strip()
-        
+
         if len(line) > 0 and not line.startswith('#'):
             script_lines.append(parse_script_line(line, index))
             index += 1

@@ -3,6 +3,7 @@ import pdb
 import copy
 import random
 
+
 def convert_action(action_dict):
     agent_do = [item for item, action in action_dict.items() if action is not None]
     # Make sure only one agent interact with the same object
@@ -11,7 +12,7 @@ def convert_action(action_dict):
             # continue
             objects_interaction = [x.split('(')[1].split(')')[0] for x in action_dict.values()]
             if len(set(objects_interaction)) == 1:
-                agent_do = [random.choice([0,1])]
+                agent_do = [random.choice([0, 1])]
 
     script_list = ['']
 
@@ -30,22 +31,21 @@ def convert_action(action_dict):
 def args_per_action(action):
 
     action_dict = {'turnleft': 0,
-    'walkforward': 0,
-    'turnright': 0,
-    'walktowards': 1,
-    'open': 1,
-    'close': 1,
-    'putback':1,
-    'putin': 1,
-    'put': 1,
-    'grab': 1,
-    'no_action': 0,
-    'walk': 1}
+                   'walkforward': 0,
+                   'turnright': 0,
+                   'walktowards': 1,
+                   'open': 1,
+                   'close': 1,
+                   'putback': 1,
+                   'putin': 1,
+                   'put': 1,
+                   'grab': 1,
+                   'no_action': 0,
+                   'walk': 1}
     return action_dict[action]
 
 
-def can_perform_action(action, o1_id, agent_id, graph, 
-                       object_restrictions=None, teleport=True):
+def can_perform_action(action, o1_id, agent_id, graph, object_restrictions=None, teleport=True):
     """
     Check whether the current action can be done
     Returns None if Action cannot be performed and a fromatted action as a string if yes
@@ -61,10 +61,11 @@ def can_perform_action(action, o1_id, agent_id, graph,
     num_args = 0 if o1 is None else 1
     if num_args != args_per_action(action):
         return None
-    
-    grabbed_objects = [edge['to_id'] for edge in graph['edges'] if edge['from_id'] == agent_id and edge['relation_type'] in ['HOLDS_RH', 'HOLD_LH']]
-    close_edge = len([edge['to_id'] for edge in graph['edges'] if edge['from_id'] == agent_id and edge['to_id'] == o1_id and edge['relation_type'] == 'CLOSE']) > 0
-    
+
+    grabbed_objects = [edge['to_id'] for edge in graph['edges'] if edge['from_id']
+                       == agent_id + 1 and edge['relation_type'] in ['HOLDS_RH', 'HOLD_LH']]
+    close_edge = len([edge['to_id'] for edge in graph['edges'] if edge['from_id'] ==
+                     agent_id + 1 and edge['to_id'] == o1_id and edge['relation_type'] == 'CLOSE']) > 0
     if action == 'grab':
         if len(grabbed_objects) > 0:
             return None
@@ -72,11 +73,11 @@ def can_perform_action(action, o1_id, agent_id, graph,
     if action.startswith('walk'):
         if o1_id in grabbed_objects:
             return None
-    
-    if o1_id == agent_id:
+
+    if o1_id == agent_id + 1:
         return None
 
-    if o1_id == agent_id:
+    if o1_id == agent_id + 1:
         return None
 
     if (action in ['grab', 'open', 'close']) and not close_edge:
@@ -108,7 +109,7 @@ def can_perform_action(action, o1_id, agent_id, graph,
 
     if o1 is not None:
         obj1_str = f'<{o1}> ({o1_id})'
-    
+
     if o1_id in id2node.keys():
         if id2node[o1_id]['class_name'] == 'character':
             return None

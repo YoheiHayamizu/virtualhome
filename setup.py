@@ -28,17 +28,17 @@ setuptools.setup(
         'matplotlib>=3.4.2',
         'networkx==2.3',
         'numpy>=1.19.3',
-        'opencv-python==4.5.1.48',
+        'opencv-python==4.6.0.66',
         'pillow>=8.3.1',
         'plotly==3.10.0',
         'requests>=1.21.0',
         'ipdb==0.13.9',
         'termcolor==1.1.0',
-        'tqdm==4.31.1',
+        'tqdm>=4.31.1',
         'urllib3>=1.24.3'
     ],
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    package_dir={"": "virtualhome"},
+    packages=setuptools.find_packages(where="virtualhome"),
     python_requires=">=3.10",
 )
 
